@@ -22,5 +22,16 @@ namespace CPUFramework
             dt.Load(dr);
             return dt;
         }
+
+        public static void DebugPrintDataTable(DataTable dt)
+        {
+            foreach(DataRow r in dt.Rows)
+            {
+                foreach(DataColumn c in dt.Columns)
+                {
+                    Debug.Print(c.ColumnName + " = " + r[c.ColumnName].ToString());
+                }
+            }
+        }
     }
 }
