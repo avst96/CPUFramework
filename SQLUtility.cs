@@ -10,14 +10,11 @@ namespace CPUFramework
         public static DataTable GetDataTable(string sqlstatement)
         {
             Debug.Print(sqlstatement);
-
             DataTable dt = new();
-            SqlConnection conn = new();
-            conn.ConnectionString = ConnectionString;
+
+            SqlConnection conn = new() { ConnectionString = ConnectionString };
             conn.Open();
-            SqlCommand cmd = new SqlCommand();
-            cmd.Connection = conn;
-            cmd.CommandText = sqlstatement;
+            SqlCommand cmd = new SqlCommand() { Connection = conn, CommandText = sqlstatement };
             SqlDataReader dr = cmd.ExecuteReader();
             dt.Load(dr);
             SetAllColumnsAllowNull(dt);
@@ -32,7 +29,7 @@ namespace CPUFramework
 
         private static void SetAllColumnsAllowNull(DataTable dt)
         {
-            foreach(DataColumn c in dt.Columns)
+            foreach (DataColumn c in dt.Columns)
             {
                 c.AllowDBNull = true;
             }
@@ -40,9 +37,10 @@ namespace CPUFramework
 
         public static void DebugPrintDataTable(DataTable dt)
         {
-            foreach(DataRow r in dt.Rows)
+            Debug.Print("-----------------------");
+            foreach (DataRow r in dt.Rows)
             {
-                foreach(DataColumn c in dt.Columns)
+                foreach (DataColumn c in dt.Columns)
                 {
                     Debug.Print(c.ColumnName + " = " + r[c.ColumnName].ToString());
                 }
