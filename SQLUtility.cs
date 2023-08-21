@@ -25,6 +25,7 @@ namespace CPUFramework
 
         public static DataTable GetDataTable(SqlCommand cmd)
         {
+            Debug.Print("----------" + Environment.NewLine + cmd.CommandText);
             DataTable dt = new();
             using (SqlConnection conn = new SqlConnection(SQLUtility.ConnectionString))
             {
@@ -38,16 +39,8 @@ namespace CPUFramework
         }
         public static DataTable GetDataTable(string sqlstatement)
         {
-            Debug.Print(sqlstatement);
             DataTable dt = new();
-
-            SqlConnection conn = new() { ConnectionString = ConnectionString };
-            conn.Open();
-            SqlCommand cmd = new SqlCommand() { Connection = conn, CommandText = sqlstatement };
-            SqlDataReader dr = cmd.ExecuteReader();
-            dt.Load(dr);
-            SetAllColumnsAllowNull(dt);
-            return dt;
+            return GetDataTable(new SqlCommand(sqlstatement));
         }
 
         public static void ExecuteSQL(string sqlstatement)
