@@ -32,8 +32,16 @@ namespace CPUFramework
                 conn.Open();
                 cmd.Connection = conn;
                 Debug.Print(GetSQL(cmd));
-                SqlDataReader dr = cmd.ExecuteReader();
-                dt.Load(dr);
+                try
+                {
+                    SqlDataReader dr = cmd.ExecuteReader();
+                    dt.Load(dr);
+                }
+                catch (SqlException ex)
+                {
+                    string msg = ParseConstraintMsg(ex.Message);
+                    throw new Exception(msg);
+                }
             }
             SetAllColumnsAllowNull(dt);
             return dt;
@@ -49,6 +57,44 @@ namespace CPUFramework
             GetDataTable(sqlstatement);
         }
 
+        public static string ParseConstraintMsg(string msg)
+        {
+            string origmsg = msg;
+            string prefix = "ck_";
+            string msgend = "";
+            if (msg.Contains(prefix) == false)
+            {
+                if (msg.Contains("u_"))
+                {
+                    prefix = "u_";
+                    msgend = " must be unique";
+                }
+                else if (msg.Contains("f_"))
+                {
+                    prefix = "f_";
+                }
+
+            }
+            if (msg.Contains(prefix))
+            {
+                int pos = msg.IndexOf(prefix) + prefix.Length;
+                msg = msg.Replace("\"", "'");
+                msg = msg.Substring(pos);
+                pos = msg.IndexOf("\'");
+                if (pos < 0)
+                {
+                    msg = origmsg;
+                }
+                else
+                {
+                    msg = msg.Substring(0, pos);
+                    msg = msg.Replace("_", " ") ;
+                    msg += msgend;
+                    msg = char.ToUpper(msg[0]) + msg.Substring(1);
+                }
+            }
+            return msg;
+        }
         public static int GetFirstColumnFirstRowValue(string sql)
         {
             int n = 0;
