@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Text;
 
 namespace CPUFramework
 {
@@ -25,12 +26,12 @@ namespace CPUFramework
 
         public static DataTable GetDataTable(SqlCommand cmd)
         {
-            Debug.Print("----------" + Environment.NewLine + cmd.CommandText);
             DataTable dt = new();
             using (SqlConnection conn = new SqlConnection(SQLUtility.ConnectionString))
             {
                 conn.Open();
                 cmd.Connection = conn;
+                Debug.Print(GetSQL(cmd));
                 SqlDataReader dr = cmd.ExecuteReader();
                 dt.Load(dr);
             }
@@ -71,8 +72,49 @@ namespace CPUFramework
             }
         }
 
+        public static string GetSQL(SqlCommand cmd)
+        {
+            string val = "";
+#if DEBUG
+            StringBuilder sb = new();
+            if (cmd.Connection != null)
+            {
+                sb.AppendLine($"--{cmd.Connection.DataSource}");
+                sb.AppendLine($"use {cmd.Connection.Database}{Environment.NewLine}go");
+
+            }
+            if (cmd.CommandType == CommandType.StoredProcedure)
+            {
+                int paramcount = cmd.Parameters.Count - 1;
+                int paramnum = 0;
+                string comma = ",";
+                sb.AppendLine($"exec {cmd.CommandText}");
+
+                foreach (SqlParameter p in cmd.Parameters)
+                {
+                    if (p.Direction != ParameterDirection.ReturnValue)
+                    {
+                        if (paramnum == paramcount)
+                        {
+                            comma = "";
+                        }
+                        sb.AppendLine($"{p.ParameterName} = {(p.Value == null ? "default" : p.ToString())}{comma}");
+                    }
+                    paramnum++;
+                }
+            }
+            else
+            {
+                sb.AppendLine(cmd.CommandText);
+            }
+            val = sb.ToString();
+#endif
+            return val;
+        }
+
         public static void DebugPrintDataTable(DataTable dt)
         {
+#if DEBUG
             Debug.Print("-----------------------");
             foreach (DataRow r in dt.Rows)
             {
@@ -81,6 +123,7 @@ namespace CPUFramework
                     Debug.Print(c.ColumnName + " = " + r[c.ColumnName].ToString());
                 }
             }
+#endif
         }
     }
 }
