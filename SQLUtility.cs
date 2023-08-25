@@ -144,7 +144,7 @@ namespace CPUFramework
                         {
                             comma = "";
                         }
-                        sb.AppendLine($"{p.ParameterName} = {(p.Value == null ? "default" : p.ToString())}{comma}");
+                        sb.AppendLine($"{p.ParameterName} = {(p.Value == null ? "default" : p.Value.ToString())}{comma}");
                     }
                     paramnum++;
                 }
