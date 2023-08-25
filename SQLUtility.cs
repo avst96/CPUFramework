@@ -23,8 +23,12 @@ namespace CPUFramework
             }
             return cmd;
         }
-
         public static DataTable GetDataTable(SqlCommand cmd)
+        {
+            return DoExcuteSQL(cmd, true);
+        }
+
+        private static DataTable DoExcuteSQL(SqlCommand cmd, bool loadtable)
         {
             DataTable dt = new();
             using (SqlConnection conn = new SqlConnection(SQLUtility.ConnectionString))
@@ -35,7 +39,10 @@ namespace CPUFramework
                 try
                 {
                     SqlDataReader dr = cmd.ExecuteReader();
+                    if (loadtable)
+                    {
                     dt.Load(dr);
+                    }
                 }
                 catch (SqlException ex)
                 {
@@ -48,8 +55,7 @@ namespace CPUFramework
         }
         public static DataTable GetDataTable(string sqlstatement)
         {
-            DataTable dt = new();
-            return GetDataTable(new SqlCommand(sqlstatement));
+            return DoExcuteSQL(new SqlCommand(sqlstatement), true);
         }
 
         public static void ExecuteSQL(string sqlstatement)
@@ -59,7 +65,7 @@ namespace CPUFramework
 
         public static void ExecuteSQL(SqlCommand cmd)
         {
-            GetDataTable(cmd);
+            DoExcuteSQL(cmd, false);
         }
         public static string ParseConstraintMsg(string msg)
         {
