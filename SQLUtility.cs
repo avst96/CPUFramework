@@ -57,6 +57,10 @@ namespace CPUFramework
             GetDataTable(sqlstatement);
         }
 
+        public static void ExecuteSQL(SqlCommand cmd)
+        {
+            GetDataTable(cmd);
+        }
         public static string ParseConstraintMsg(string msg)
         {
             string origmsg = msg;
