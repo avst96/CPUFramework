@@ -1,9 +1,4 @@
-﻿using System.Data;
-using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Text;
-
-namespace CPUFramework
+﻿namespace CPUFramework
 {
     public class SQLUtility
     {
@@ -41,7 +36,7 @@ namespace CPUFramework
                     SqlDataReader dr = cmd.ExecuteReader();
                     if (loadtable)
                     {
-                    dt.Load(dr);
+                        dt.Load(dr);
                     }
                 }
                 catch (SqlException ex)
@@ -67,6 +62,19 @@ namespace CPUFramework
         {
             DoExcuteSQL(cmd, false);
         }
+
+        public static void SetParamValue(SqlCommand cmd, string paramname, object value)
+        {
+            try
+            {
+                cmd.Parameters[paramname].Value = value;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(cmd.CommandText + ": " + ex.Message, ex);
+            }
+        }
+
         public static string ParseConstraintMsg(string msg)
         {
             string origmsg = msg;
@@ -98,7 +106,7 @@ namespace CPUFramework
                 else
                 {
                     msg = msg.Substring(0, pos);
-                    msg = msg.Replace("_", " ") ;
+                    msg = msg.Replace("_", " ");
                     msg += msgend;
                     msg = char.ToUpper(msg[0]) + msg.Substring(1);
                 }
