@@ -44,6 +44,10 @@
                     string msg = ParseConstraintMsg(ex.Message);
                     throw new Exception(msg);
                 }
+                catch (InvalidCastException ex)
+                {
+                    throw new Exception(cmd.CommandText+ ex.Message, ex);
+                }
             }
             SetAllColumnsAllowNull(dt);
             return dt;
@@ -109,6 +113,15 @@
                     msg = msg.Replace("_", " ");
                     msg += msgend;
                     msg = char.ToUpper(msg[0]) + msg.Substring(1);
+
+                    if(prefix == "f_")
+                    {
+                        var words = msg.Split(' ');
+                        if (words.Length > 1)
+                        {
+                            msg = $"Cannot delete {words[0]} because it has a related {words[1]} record";
+                        }
+                    }
                 }
             }
             return msg;
