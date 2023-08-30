@@ -34,6 +34,7 @@
                 try
                 {
                     SqlDataReader dr = cmd.ExecuteReader();
+                    CheckReturnValue(cmd);
                     if (loadtable)
                     {
                         dt.Load(dr);
@@ -46,11 +47,40 @@
                 }
                 catch (InvalidCastException ex)
                 {
-                    throw new Exception(cmd.CommandText+ ex.Message, ex);
+                    throw new Exception(cmd.CommandText + ex.Message, ex);
                 }
             }
             SetAllColumnsAllowNull(dt);
             return dt;
+        }
+
+        private static void CheckReturnValue(SqlCommand cmd)
+        {
+            int returnvalue = 0;
+            string msg = "";
+            if (cmd.CommandType == CommandType.StoredProcedure)
+            {
+                foreach (SqlParameter p in cmd.Parameters)
+                {
+                    if (p.Direction == ParameterDirection.ReturnValue && p.Value != null)
+                    {
+                        returnvalue = (int)p.Value;
+                    }
+                    else if (p.ParameterName.ToLower() == "@message" && p.Value != null)
+                    {
+                        msg = p.Value.ToString();
+                    }
+                }
+                if (returnvalue == 1)
+                {
+                    if (msg == "")
+                    {
+                        msg = $"{cmd.CommandText} did not do action requested";
+                    }
+                    throw new Exception(msg);
+                }
+            }
+
         }
         public static DataTable GetDataTable(string sqlstatement)
         {
@@ -114,7 +144,7 @@
                     msg += msgend;
                     msg = char.ToUpper(msg[0]) + msg.Substring(1);
 
-                    if(prefix == "f_")
+                    if (prefix == "f_")
                     {
                         var words = msg.Split(' ');
                         if (words.Length > 1)
