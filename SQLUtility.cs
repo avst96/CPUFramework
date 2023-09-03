@@ -91,6 +91,10 @@
         {
             GetDataTable(sqlstatement);
         }
+        public static void SaveDataRow(DataRow row, string sprocname)
+        {
+
+        }
 
         public static void ExecuteSQL(SqlCommand cmd)
         {
