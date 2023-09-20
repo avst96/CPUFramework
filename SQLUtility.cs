@@ -115,6 +115,7 @@
                     }
                 }
             }
+            row.Table.AcceptChanges();
         }
 
         public static void ExecuteSQL(SqlCommand cmd)
@@ -235,6 +236,16 @@
                 }
             }
             return value;
+        }
+
+        public static bool TableHasChanges(DataTable dt)
+        {
+            bool b = false;
+            if (dt.GetChanges() != null)
+            { 
+                b = true;
+            }
+            return b;
         }
 
         public static string GetSQL(SqlCommand cmd)
