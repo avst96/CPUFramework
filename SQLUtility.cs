@@ -50,7 +50,7 @@
                     throw new Exception(cmd.CommandText + ex.Message, ex);
                 }
             }
-            SetAllColumnsAllowNull(dt);
+            SetAllColumnsProperties(dt);
             return dt;
         }
 
@@ -91,10 +91,20 @@
         {
             GetDataTable(sqlstatement);
         }
-        public static void SaveDataRow(DataRow row, string sprocname)
+        public static void SaveDataTable(DataTable dt, string sprocname)
+        {
+            var rows = dt.Select("", "", DataViewRowState.Added | DataViewRowState.ModifiedCurrent);
+            foreach (DataRow r in rows)
+            {
+                SaveDataRow(r, sprocname, false);
+            }
+            dt.AcceptChanges();
+        }
+
+        public static void SaveDataRow(DataRow row, string sprocname, bool acceptchanges = true)
         {
             SqlCommand cmd = GetSqlCommand(sprocname);
-            foreach(DataColumn col in row.Table.Columns)
+            foreach (DataColumn col in row.Table.Columns)
             {
                 string paramname = $"@{col.ColumnName}";
                 if (cmd.Parameters.Contains(paramname))
@@ -102,11 +112,11 @@
                     cmd.Parameters[paramname].Value = row[col.ColumnName];
                 }
             }
-            DoExcuteSQL (cmd, false);
+            DoExcuteSQL(cmd, false);
 
-            foreach(SqlParameter p in cmd.Parameters)
+            foreach (SqlParameter p in cmd.Parameters)
             {
-                if(p.Direction == ParameterDirection.InputOutput)
+                if (p.Direction == ParameterDirection.InputOutput)
                 {
                     string colname = p.ParameterName.Substring(1);
                     if (row.Table.Columns.Contains(colname))
@@ -115,7 +125,11 @@
                     }
                 }
             }
-            row.Table.AcceptChanges();
+
+            if (acceptchanges)
+            {
+                row.Table.AcceptChanges();
+            }
         }
 
         public static void ExecuteSQL(SqlCommand cmd)
@@ -202,11 +216,12 @@
             return n;
         }
 
-        private static void SetAllColumnsAllowNull(DataTable dt)
+        private static void SetAllColumnsProperties(DataTable dt)
         {
             foreach (DataColumn c in dt.Columns)
             {
                 c.AllowDBNull = true;
+                c.AutoIncrement = false;
             }
         }
 
@@ -242,7 +257,7 @@
         {
             bool b = false;
             if (dt.GetChanges() != null)
-            { 
+            {
                 b = true;
             }
             return b;
