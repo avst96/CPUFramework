@@ -38,6 +38,7 @@
                     if (loadtable)
                     {
                         dt.Load(dr);
+                        SetAllColumnsProperties(dt);
                     }
                 }
                 catch (SqlException ex)
@@ -50,7 +51,6 @@
                     throw new Exception(cmd.CommandText + ex.Message, ex);
                 }
             }
-            SetAllColumnsProperties(dt);
             return dt;
         }
 
