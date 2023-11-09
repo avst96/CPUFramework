@@ -53,7 +53,21 @@
             }
             return dt;
         }
-
+        public static int GetNewPrimaryKey(SqlCommand cmd, string primarykeyname)
+        {
+            int primarykey = 0;
+            if(cmd.CommandType == CommandType.StoredProcedure)
+            {
+                foreach(SqlParameter p in cmd.Parameters)
+                {
+                    if(p.Direction == ParameterDirection.InputOutput && p.ParameterName == $"@{primarykeyname}" && p.Value is int i)
+                    {
+                        primarykey = i;
+                    }
+                }
+            }
+            return primarykey;   
+        } 
         private static void CheckReturnValue(SqlCommand cmd)
         {
             int returnvalue = 0;
