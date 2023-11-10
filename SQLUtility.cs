@@ -56,11 +56,12 @@
         public static int GetNewPrimaryKey(SqlCommand cmd, string primarykeyname)
         {
             int primarykey = 0;
+            primarykeyname = primarykeyname.ToLower();
             if(cmd.CommandType == CommandType.StoredProcedure)
             {
                 foreach(SqlParameter p in cmd.Parameters)
                 {
-                    if(p.Direction == ParameterDirection.InputOutput && p.ParameterName == $"@{primarykeyname}" && p.Value is int i)
+                    if(p.Direction == ParameterDirection.InputOutput && p.ParameterName.ToLower() == $"@{primarykeyname}" && p.Value is int i)
                     {
                         primarykey = i;
                     }
