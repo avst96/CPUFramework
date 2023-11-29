@@ -243,7 +243,7 @@
             {
                 if (dt.Rows[0][0] != DBNull.Value)
                 {
-                    int.TryParse(dt.Rows[0][0].ToString(), out n);
+                    _=int.TryParse(dt.Rows[0][0].ToString(), out n);
                 }
             }
             return n;
