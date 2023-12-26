@@ -44,12 +44,7 @@ namespace CPUFramework
         {
             foreach (DataColumn col in dr.Table.Columns)
             {
-                string colname = col.ColumnName.ToLower();
-                PropertyInfo? prop = _properties.FirstOrDefault(p => p.CanWrite && p.Name.ToLower() == colname);
-                if (prop != null)
-                {
-                    prop.SetValue(this, dr[colname]);
-                }
+                SetProp(col.ColumnName, dr[col.ColumnName]);
             }
         }
 
@@ -66,18 +61,19 @@ namespace CPUFramework
             SqlCommand cmd = SQLUtility.GetSqlCommand(_updatesproc);
             foreach (SqlParameter param in cmd.Parameters)
             {
-                string colname = param.ParameterName.ToLower().Substring(1);
-                PropertyInfo? prop = _properties.FirstOrDefault(p => p.CanRead && p.Name.ToLower() == colname);
-                if (prop != null) { param.Value = prop.GetValue(this); }
+                var prop = GetProp(param.ParameterName, true, false);
+                if (prop != null)
+                {
+                    object? val = prop.GetValue(this);
+                    param.Value = val == null ? DBNull.Value : val;
+                }
             }
             SQLUtility.ExecuteSQL(cmd);
             foreach (SqlParameter param in cmd.Parameters)
             {
                 if (param.Direction == ParameterDirection.InputOutput)
                 {
-                    string colname = param.ParameterName.ToLower().Substring(1);
-                    PropertyInfo? prop = _properties.FirstOrDefault(p => p.CanRead && p.Name.ToLower() == colname);
-                    if (prop != null) { prop.SetValue(this, param.Value); }
+                    SetProp(param.ParameterName, param.Value);
                 }
             }
         }
@@ -89,6 +85,25 @@ namespace CPUFramework
             }
             DataRow r = datatable.Rows[0];
             SQLUtility.SaveDataRow(r, _updatesproc);
+        }
+        private PropertyInfo? GetProp(string propname, bool forread, bool forwrite)
+        {
+            propname = propname.ToLower();
+            if (propname.StartsWith("@")) { propname = propname.Substring(1); }
+            PropertyInfo? prop = _properties.FirstOrDefault(p =>
+            p.Name.ToLower() == propname
+            && (forread == false || p.CanRead)
+            && (forwrite == false || p.CanWrite));
+            return prop;
+        }
+        private void SetProp(string propname, object? value)
+        {
+            var prop = GetProp(propname, false, true);
+            if (prop != null)
+            {
+                if (value == DBNull.Value) { value = null; }
+                prop.SetValue(this, value);
+            }
         }
         protected void InvokePropertyChanged([CallerMemberName] string propertyname = "")
         {
