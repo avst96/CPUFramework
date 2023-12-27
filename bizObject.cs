@@ -6,7 +6,7 @@ namespace CPUFramework
 {
     public class bizObject : INotifyPropertyChanged
     {
-        string _tablename = "", _getsproc = "", _updatesproc = "", _deletesproc = "", _primarykeyname = "", _primarykeyparamname = "";
+        string _typename, _tablename = "", _getsproc = "", _updatesproc = "", _deletesproc = "", _primarykeyname = "", _primarykeyparamname = "";
         DataTable _datatable = new();
         List<PropertyInfo> _properties = new();
 
@@ -15,7 +15,8 @@ namespace CPUFramework
         public bizObject()
         {
             Type t = GetType();
-            _tablename = t.Name;
+            _typename = t.Name;
+            _tablename = _typename;
             if (_tablename.ToLower().StartsWith("biz")) { _tablename = _tablename.Substring(3); }
             _getsproc = _tablename + "Get";
             _updatesproc = _tablename + "Update";
@@ -110,7 +111,15 @@ namespace CPUFramework
             if (prop != null)
             {
                 if (value == DBNull.Value) { value = null; }
-                prop.SetValue(this, value);
+                try
+                {
+                    prop.SetValue(this, value);
+                }
+                catch (Exception ex)
+                {
+                    string msg = $"{_typename}.{prop.Name} is being set to {value} and that is the wrong data type. {ex.Message}";
+                    throw new CPUDevException(msg, ex);
+                }
             }
         }
         protected void InvokePropertyChanged([CallerMemberName] string propertyname = "")
