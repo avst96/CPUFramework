@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CPUFramework
 {
@@ -47,15 +42,29 @@ namespace CPUFramework
                 SetProp(col.ColumnName, dr[col.ColumnName]);
             }
         }
-
-        public void Delete(DataTable datatable)
+        public void Delete(int id)
         {
-            int id = (int)datatable.Rows[0][_primarykeyname];
             SqlCommand cmd = SQLUtility.GetSqlCommand(_deletesproc);
             SQLUtility.SetParamValue(cmd, _primarykeyparamname, id);
             SQLUtility.ExecuteSQL(cmd);
         }
-
+        public void Delete()
+        {
+            PropertyInfo? prop = GetProp(_primarykeyname, true, false);
+            if (prop != null)
+            {
+                int? id = (int?)prop.GetValue(this);
+                if (id != null)
+                {
+                    Delete((int)id);
+                }
+            }
+        }
+        public void Delete(DataTable datatable)
+        {
+            int id = (int)datatable.Rows[0][_primarykeyname];
+            Delete(id);
+        }
         public void Save()
         {
             SqlCommand cmd = SQLUtility.GetSqlCommand(_updatesproc);
@@ -64,8 +73,7 @@ namespace CPUFramework
                 var prop = GetProp(param.ParameterName, true, false);
                 if (prop != null)
                 {
-                    object? val = prop.GetValue(this);
-                    param.Value = val == null ? DBNull.Value : val;
+                    param.Value = prop.GetValue(this) ?? DBNull.Value;
                 }
             }
             SQLUtility.ExecuteSQL(cmd);
