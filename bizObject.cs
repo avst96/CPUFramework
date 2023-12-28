@@ -111,10 +111,6 @@ namespace CPUFramework
             if (prop != null)
             {
                 if (value == DBNull.Value) { value = null; }
-                if ((prop.PropertyType == typeof(DateOnly?) || prop.PropertyType == typeof(DateOnly)) && value != null)
-                {
-                    value = DateOnly.FromDateTime((DateTime)value);
-                }
                 try
                 {
                     prop.SetValue(this, value);
