@@ -6,7 +6,7 @@
         public static void SetConnectionString(string connstring, bool tryopen, string userid = "", string password = "")
         {
             ConnectionString = connstring;
-            if(userid != "")
+            if (userid != "")
             {
                 SqlConnectionStringBuilder b = new(ConnectionString);
                 b.UserID = userid;
@@ -75,18 +75,18 @@
         {
             int primarykey = 0;
             primarykeyname = primarykeyname.ToLower();
-            if(cmd.CommandType == CommandType.StoredProcedure)
+            if (cmd.CommandType == CommandType.StoredProcedure)
             {
-                foreach(SqlParameter p in cmd.Parameters)
+                foreach (SqlParameter p in cmd.Parameters)
                 {
-                    if(p.Direction == ParameterDirection.InputOutput && p.ParameterName.ToLower() == $"@{primarykeyname}" && p.Value is int i)
+                    if (p.Direction == ParameterDirection.InputOutput && p.ParameterName.ToLower() == $"@{primarykeyname}" && p.Value is int i)
                     {
                         primarykey = i;
                     }
                 }
             }
-            return primarykey;   
-        } 
+            return primarykey;
+        }
         private static void CheckReturnValue(SqlCommand cmd)
         {
             int returnvalue = 0;
@@ -172,6 +172,7 @@
 
         public static void SetParamValue(SqlCommand cmd, string paramname, object value)
         {
+            if (!paramname.StartsWith("@")) { paramname = "@" + paramname; }
             try
             {
                 cmd.Parameters[paramname].Value = value;
@@ -243,7 +244,7 @@
             {
                 if (dt.Rows[0][0] != DBNull.Value)
                 {
-                    _=int.TryParse(dt.Rows[0][0].ToString(), out n);
+                    _ = int.TryParse(dt.Rows[0][0].ToString(), out n);
                 }
             }
             return n;
