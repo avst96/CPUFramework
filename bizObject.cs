@@ -14,8 +14,7 @@ namespace CPUFramework
 
         public bizObject()
         {
-            Type t = GetType();
-            _typename = t.Name;
+            _typename = typeof(T).Name;
             _tablename = _typename;
             if (_tablename.ToLower().StartsWith("biz")) { _tablename = _tablename.Substring(3); }
             _getsproc = _tablename + "Get";
@@ -23,7 +22,7 @@ namespace CPUFramework
             _deletesproc = _tablename + "Delete";
             _primarykeyname = _tablename + "Id";
             _primarykeyparamname = "@" + _primarykeyname;
-            _properties = t.GetProperties().ToList();
+            _properties = typeof(T).GetProperties().ToList();
         }
         public DataTable Load(int primarykeyvalue)
         {
