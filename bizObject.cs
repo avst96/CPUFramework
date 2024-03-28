@@ -119,8 +119,15 @@ namespace CPUFramework
         private void SetProp(string propname, object? value)
         {
             var prop = GetProp(propname, false, true);
+
             if (prop != null)
             {
+                //If a bit will convert to a bool if property in object is bool 
+                if (prop.PropertyType == typeof(bool) && value is int i && (i == 0 || i == 1))
+                {
+                    value = Convert.ToBoolean(value);
+                }
+
                 if (value == DBNull.Value) { value = null; }
                 try
                 {
