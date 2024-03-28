@@ -15,6 +15,16 @@ namespace CPUFramework
         public bizObject()
         {
             _typename = typeof(T).Name;
+            ConstructorFinish();
+            
+        }
+        public bizObject(string sprocname)
+        {
+            _typename = sprocname;
+            ConstructorFinish();
+        }
+        private void ConstructorFinish()
+        {
             _tablename = _typename;
             if (_tablename.ToLower().StartsWith("biz")) { _tablename = _tablename.Substring(3); }
             _getsproc = _tablename + "Get";
@@ -122,7 +132,7 @@ namespace CPUFramework
 
             if (prop != null)
             {
-                //If a bit will convert to a bool if property in object is bool 
+                //If it is a SQL type bit, will convert to a bool if property in object is type of bool 
                 if (prop.PropertyType == typeof(bool) && value is int i && (i == 0 || i == 1))
                 {
                     value = Convert.ToBoolean(value);
