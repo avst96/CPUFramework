@@ -25,7 +25,7 @@
         public static SqlCommand GetSqlCommand(string sprocname)
         {
             SqlCommand cmd;
-            using (SqlConnection conn = new SqlConnection(SQLUtility.ConnectionString))
+            using (SqlConnection conn = new(ConnectionString))
             {
                 cmd = new SqlCommand(sprocname, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -228,7 +228,9 @@
                         var words = msg.Split(' ');
                         if (words.Length > 1)
                         {
-                            msg = $"Cannot delete {words[0]} because it has a related {words[1]} record";
+                            string table1 = words[0], table2 = words[1];
+                            msg = $"{table1} and {table2} records are related, cannot delete {table1} when it has a related {table2} record," +
+                                $"and cannot insert a {table1} that is not in the {table1} records into {table2}";
                         }
                     }
                 }
